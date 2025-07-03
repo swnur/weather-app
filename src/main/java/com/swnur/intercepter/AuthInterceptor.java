@@ -27,7 +27,22 @@ public class AuthInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String requestURI = request.getRequestURI();
-        if (requestURI.startsWith("/sign-in") || requestURI.startsWith("/sign-up")) {
+        String contextPath = request.getContextPath();
+
+        String path = requestURI.substring(contextPath.length());
+        if (!path.startsWith("/")) {
+            path = "/" + path;
+        }
+
+        System.out.println("AuthInterceptor: Full URI: " + requestURI);
+        System.out.println("AuthInterceptor: Context Path: " + contextPath);
+        System.out.println("AuthInterceptor: Normalized Path: " + path);
+
+        if (path.startsWith("/sign-in") ||
+                path.startsWith("/sign-up") ||
+                path.startsWith("/static") ||
+                path.equals("/error/general-error")) {
+            System.out.println("AuthInterceptor: Allowing public URI: " + path);
             return true;
         }
 
