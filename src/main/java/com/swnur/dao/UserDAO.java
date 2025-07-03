@@ -15,7 +15,6 @@ public class UserDAO {
     @PersistenceContext
     private EntityManager entityManager;
 
-
     @Transactional
     public User save(User user) {
         entityManager.persist(user);
@@ -25,11 +24,9 @@ public class UserDAO {
     @Transactional(readOnly = true)
     public Optional<User> findByLogin(String login) {
         try {
-            User user = entityManager.createQuery("SELECT u FROM User u WHERE u.login = :login", User.class)
+            return Optional.ofNullable(entityManager.createQuery("SELECT u FROM User u WHERE u.login = :login", User.class)
                     .setParameter("login", login)
-                    .getSingleResult();
-
-            return Optional.of(user);
+                    .getSingleResult());
         } catch (NoResultException exception) {
             return Optional.empty();
         }
