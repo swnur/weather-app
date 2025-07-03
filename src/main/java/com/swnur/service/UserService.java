@@ -1,6 +1,8 @@
 package com.swnur.service;
 
 import com.swnur.dao.UserDAO;
+import com.swnur.exception.InvalidCredentialsException;
+import com.swnur.exception.LoginAlreadyExistsException;
 import com.swnur.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,9 +21,9 @@ public class UserService {
     @Transactional
     public User registerUser(String login, String password) {
         Optional<User> existingUser = userDAO.findByLogin(login);
-        if (existingUser.isPresent()) {
-            throw new RuntimeException("Login already exists: " + login);
-        }
+
+        if (existingUser.isPresent())
+            throw new LoginAlreadyExistsException("Login: " + login + " is already taken.");
 
         User newUser = new User();
         newUser.setLogin(login);
@@ -34,15 +36,13 @@ public class UserService {
     public User authenticateUser(String login, String password) {
         Optional<User> existingUser = userDAO.findByLogin(login);
 
-        if (existingUser.isEmpty()) {
-            throw new RuntimeException("Authentication failed: User not found");
-        }
+        if (existingUser.isEmpty())
+            throw new InvalidCredentialsException("Authentication failed: User not found");
 
         User user = existingUser.get();
 
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("Authentication failed: Password is incorrect");
-        }
+        if (!passwordEncoder.matches(password, user.getPassword()))
+            throw new InvalidCredentialsException("Authentication failed: Password is incorrect");
 
         return user;
     }
