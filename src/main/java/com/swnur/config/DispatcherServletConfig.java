@@ -15,7 +15,7 @@ public class DispatcherServletConfig extends AbstractAnnotationConfigDispatcherS
 
     @Override
     protected Class<?> @Nullable [] getServletConfigClasses() {
-        return new Class[] {SpringConfig.class};
+        return new Class[] {WebApplicationConfig.class};
     }
 
     @Override
