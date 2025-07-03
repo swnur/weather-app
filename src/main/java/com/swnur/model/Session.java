@@ -17,7 +17,7 @@ import java.util.UUID;
 public class Session {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @ManyToOne
@@ -29,7 +29,6 @@ public class Session {
     private LocalDateTime expiresAt;
 
     public Session(User user, LocalDateTime expiresAt) {
-        this.id = UUID.randomUUID();
         this.user = user;
         this.expiresAt = expiresAt;
     }
