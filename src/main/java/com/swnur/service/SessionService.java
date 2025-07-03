@@ -2,6 +2,7 @@ package com.swnur.service;
 
 import com.swnur.dao.SessionDAO;
 import com.swnur.dao.UserDAO;
+import com.swnur.intercepter.AuthInterceptor;
 import com.swnur.model.Session;
 import com.swnur.model.User;
 import lombok.RequiredArgsConstructor;
@@ -19,11 +20,9 @@ public class SessionService {
     private final SessionDAO sessionDAO;
     private final UserDAO userDAO;
 
-    private static final int SESSION_EXPIRATION_MINUTES = 30;
-
     @Transactional
     public Session createSession(User user) {
-        LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(SESSION_EXPIRATION_MINUTES);
+        LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(AuthInterceptor.SESSION_EXPIRATION_MINUTES);
 
         Session newSession = new Session(user, expiresAt);
 
