@@ -4,10 +4,7 @@ import com.swnur.intercepter.AuthInterceptor;
 import jakarta.persistence.EntityManagerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -37,7 +34,7 @@ public class SpringConfig implements WebMvcConfigurer {
     private final AuthInterceptor authInterceptor;
 
     @Autowired
-    public SpringConfig(ApplicationContext applicationContext, Environment env, AuthInterceptor authInterceptor) {
+    public SpringConfig(ApplicationContext applicationContext, Environment env, @Lazy AuthInterceptor authInterceptor) {
         this.applicationContext = applicationContext;
         this.env = env;
         this.authInterceptor = authInterceptor;

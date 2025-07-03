@@ -21,6 +21,8 @@ public class AuthInterceptor implements HandlerInterceptor {
 
     public static final String SESSION_COOKIE_NAME = "APP_SESSION_ID";
     public static final String AUTHENTICATED_USER_ATTRIBUTE = "authenticatedUser";
+    public static final int SESSION_EXPIRATION_SECONDS = 300;
+    public static final int SESSION_EXPIRATION_MINUTES = 5;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
