@@ -14,6 +14,7 @@ import org.thymeleaf.spring6.view.ThymeleafViewResolver;
 
 @Configuration
 @ComponentScan("com.swnur")
+@PropertySource("classpath:application.properties")
 @EnableWebMvc
 public class WebApplicationConfig implements WebMvcConfigurer {
 
