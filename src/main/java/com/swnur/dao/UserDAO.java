@@ -1,9 +1,9 @@
 package com.swnur.dao;
 
-import com.swnur.exception.DBOperationException;
 import com.swnur.model.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,11 +12,9 @@ import java.util.Optional;
 @Repository
 public class UserDAO {
 
-    private final EntityManager entityManager;
+    @PersistenceContext
+    private EntityManager entityManager;
 
-    public UserDAO(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
 
     @Transactional
     public User save(User user) {

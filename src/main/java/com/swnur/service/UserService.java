@@ -2,6 +2,7 @@ package com.swnur.service;
 
 import com.swnur.dao.UserDAO;
 import com.swnur.model.User;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,15 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserDAO userDAO;
     private final BCryptPasswordEncoder passwordEncoder;
-
-    public UserService(UserDAO userDAO, BCryptPasswordEncoder passwordEncoder) {
-        this.userDAO = userDAO;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     @Transactional
     public User registerUser(String login, String password) {
