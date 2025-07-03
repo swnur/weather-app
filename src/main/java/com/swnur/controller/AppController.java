@@ -1,7 +1,9 @@
 package com.swnur.controller;
 
+import com.swnur.dto.GeocodingResponse;
 import com.swnur.intercepter.AuthInterceptor;
 import com.swnur.model.User;
+import com.swnur.service.OpenWeatherService;
 import com.swnur.service.SessionService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,8 +12,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,6 +24,7 @@ import java.util.UUID;
 public class AppController {
 
     private final SessionService sessionService;
+    private final OpenWeatherService openWeatherService;
 
     @GetMapping("/")
     public String showMainPage(HttpServletRequest request, HttpServletResponse response,
@@ -34,6 +39,15 @@ public class AppController {
         model.addAttribute("message", "Welcome to the Main Page!");
 
         return "main/index";
+    }
+
+    @GetMapping("/search")
+    public String searchResults(@RequestParam("locationName") String locationName, Model model) {
+        List<GeocodingResponse> geocodingResponseList = openWeatherService.searchLocations(locationName, OpenWeatherService.LIMIT);
+        model.addAttribute("locationName", locationName);
+        model.addAttribute("locations", geocodingResponseList);
+
+        return "main/search-results";
     }
 
     @GetMapping("/logout")
