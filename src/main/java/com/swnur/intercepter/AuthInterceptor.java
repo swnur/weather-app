@@ -21,8 +21,8 @@ public class AuthInterceptor implements HandlerInterceptor {
 
     public static final String SESSION_COOKIE_NAME = "APP_SESSION_ID";
     public static final String AUTHENTICATED_USER_ATTRIBUTE = "authenticatedUser";
-    public static final int SESSION_EXPIRATION_SECONDS = 300;
-    public static final int SESSION_EXPIRATION_MINUTES = 5;
+    public static final int SESSION_EXPIRATION_SECONDS = 600;
+    public static final int SESSION_EXPIRATION_MINUTES = 10;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -34,15 +34,10 @@ public class AuthInterceptor implements HandlerInterceptor {
             path = "/" + path;
         }
 
-        System.out.println("AuthInterceptor: Full URI: " + requestURI);
-        System.out.println("AuthInterceptor: Context Path: " + contextPath);
-        System.out.println("AuthInterceptor: Normalized Path: " + path);
 
         if (path.startsWith("/sign-in") ||
                 path.startsWith("/sign-up") ||
-                path.startsWith("/static") ||
                 path.equals("/error/general-error")) {
-            System.out.println("AuthInterceptor: Allowing public URI: " + path);
             return true;
         }
 
