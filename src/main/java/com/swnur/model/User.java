@@ -26,7 +26,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false)
-    private Long id;
+    private Integer id;
 
     @NotBlank(message = "Login is required and can not be empty")
     @Size(min = 3, max = 50, message = "Login must be between 3 and 50 characters")

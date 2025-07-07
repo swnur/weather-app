@@ -32,4 +32,8 @@ public class Session {
     @NotNull(message = "Date time can not be null")
     private LocalDateTime expiresAt;
 
+    public Session(User user, LocalDateTime expiresAt) {
+        this.user = user;
+        this.expiresAt = expiresAt;
+    }
 }

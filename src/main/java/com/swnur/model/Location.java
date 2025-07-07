@@ -43,4 +43,10 @@ public class Location {
     @NotNull(message = "Location must be associated with the user")
     private User user;
 
+    public Location(String name, BigDecimal latitude, BigDecimal longitude, User user) {
+        this.name = name;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.user = user;
+    }
 }
