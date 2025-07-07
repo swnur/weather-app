@@ -3,39 +3,44 @@ package com.swnur.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 
-@Data
+@Entity
+@Table(name = "location", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"user_id", "name", "latitude", "longitude"})
+})
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "location")
+@ToString(exclude = {"user"})
 public class Location {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(updatable = false)
     private Integer id;
 
     @NotNull(message = "Name should not be null")
+    @Column(nullable = false)
     private String name;
 
     @NotNull(message = "Latitude can not be null")
+    @Column(nullable = false)
     private BigDecimal latitude;
 
     @NotNull(message = "Longitude can not be null")
+    @Column(nullable = false)
     private BigDecimal longitude;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    @NotNull(message = "Location must be associated with the user")
     private User user;
 
-    public Location(String name, BigDecimal latitude, BigDecimal longitude, User user) {
-        this.name = name;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.user = user;
-    }
 }
