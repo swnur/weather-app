@@ -1,7 +1,6 @@
 package com.swnur.service;
 
 import com.swnur.dao.SessionDAO;
-import com.swnur.dao.UserDAO;
 import com.swnur.intercepter.AuthInterceptor;
 import com.swnur.model.Session;
 import com.swnur.model.User;
@@ -18,10 +17,11 @@ import java.util.UUID;
 public class SessionService {
 
     private final SessionDAO sessionDAO;
-    private final UserDAO userDAO;
 
     @Transactional
     public Session createSession(User user) {
+        sessionDAO.deleteByExpiredForUser(user);
+
         LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(AuthInterceptor.SESSION_EXPIRATION_MINUTES);
 
         Session newSession = new Session(user, expiresAt);
@@ -40,6 +40,7 @@ public class SessionService {
         Session session = sessionOptional.get();
 
         if (session.getExpiresAt().isBefore(LocalDateTime.now())) {
+            sessionDAO.deleteById(sessionID);
             return Optional.empty();
         }
 
@@ -49,5 +50,10 @@ public class SessionService {
     @Transactional
     public boolean invalidateSession(UUID sessionID) {
         return sessionDAO.deleteById(sessionID) > 0;
+    }
+
+    @Transactional
+    public void cleanupExpiredSessions() {
+        sessionDAO.deleteByExpired();
     }
 }
