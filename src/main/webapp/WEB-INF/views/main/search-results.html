@@ -50,11 +50,17 @@
                                     <p class="card-text mb-1" th:text="'Longitude: ' + ${location.getLon()}"></p>
                                     <p class="card-text mb-1" th:text="'Country: ' + ${location.getCountry()}"></p>
                                     <p class="card-text mb-3" th:text="${location.getState() != null ? 'State: ' + location.getState() : 'State: N/A'}"></p>
-                                    <div class="mt-auto">
-                                        <form th:action="@{/}">
-                                            <button class="btn btn-primary w-100">Add</button>
-                                        </form>
-                                    </div>
+
+                                    <form th:method="POST" th:action="@{/locations/add}" th:object="${location}">
+                                        <input type="hidden" th:name="name" th:value="${location.getName()}">
+                                        <input type="hidden" th:name="lat" th:value="${location.getLat()}">
+                                        <input type="hidden" th:name="lon" th:value="${location.getLon()}">
+                                        <input type="hidden" th:name="country" th:value="${location.getCountry()}">
+
+                                        <div class="mt-auto">
+                                                <button type="submit" class="btn btn-primary w-100">Add</button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
 

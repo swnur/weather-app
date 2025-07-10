@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -38,10 +39,16 @@ public class LocationService {
                 geocodingResponse.getLon(),
                 user);
 
+        Optional<Location> existingLocation = locationDAO.findByUserAndDetails(user, location);
+        if (existingLocation.isPresent()) {
+            log.warn("User '{}' attempted to add a duplicate location: '{}'", user, location);
+
+            return;
+        }
+
         log.info("Adding new location '{}' for user '{}'", location.getName(), user.getLogin());
 
         user.addLocation(location);
-        locationDAO.save(location);
     }
 
     @Transactional

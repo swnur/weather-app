@@ -40,97 +40,32 @@
 
                 <div>
                     <div class="row">
-                        <div class="col-12 col-lg-3 col-md-6 mb-4">
+                        <div th:each="entry : ${weatherMap.entrySet()}" class="col-12 col-lg-3 col-md-6 mb-4">
                             <div class="card h-100 position-relative weather-card">
-                                <div class="position-absolute weather-card-delete-form">
-                                    <button class="btn-close" aria-label="Delete"></button>
-                                </div>
+                                <form th:action="@{/locations/delete}" th:method="POST" class="position-absolute weather-card-delete-form">
+                                    <input type="hidden" th:name="locationId" th:value="${entry.key}" />
+                                    <button type="submit" class="btn-close" aria-label="Delete"></button>
+                                </form>
+
                                 <img class="card-img-top img-fluid"
-                                     src="https://openweathermap.org/img/wn/01n@4x.png"
+                                     th:src="@{'https://openweathermap.org/img/wn/' + ${entry.value.getWeather().get(0).getIcon()} + '@4x.png'}"
                                      alt="Weather icon">
                                 <div class="card-body d-flex flex-column">
-                                    <h1 class="card-text">7°C</h1>
-                                    <h3 class="card-title">Tbilisi, GE</h3>
-                                    <p class="card-text mb-1">Feels like <span>2</span>°C.
-                                        <span>Clear sky</span>
+                                    <h1 th:text="${entry.value.getMain().getTemp()}" class="card-text">Temp</h1>
+                                    <h3 th:text="${entry.value.getName()}" class="card-title">Tbilisi, GE</h3>
+                                    <p class="card-text mb-1">Feels like <span th:text="${entry.value.getMain().getFeelsLike()}">2</span>°C.
+                                        <span th:text="${entry.value.getWeather().get(0).getDescription()}">Clear sky</span>
                                     </p>
-                                    <p class="card-text mb-1">Humidity: 70%</p>
+                                    <p class="card-text mb-1">Humidity: <span th:text="${entry.value.getMain().getHumidity()}"></span></p>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12 col-lg-3 col-md-6 mb-4">
-                            <div class="card h-100 position-relative weather-card">
-                                <div class="position-absolute weather-card-delete-form">
-                                    <button class="btn-close" aria-label="Delete"></button>
-                                </div>
-                                <img class="card-img-top img-fluid"
-                                     src="https://openweathermap.org/img/wn/04n@4x.png"
-                                     alt="Weather icon">
-                                <div class="card-body d-flex flex-column">
-                                    <h1 class="card-text">-4°C</h1>
-                                    <h3 class="card-title">Saint Petersburg, RU</h3>
-                                    <p class="card-text mb-1">Feels like <span>-11</span>°C.
-                                        <span>Broken clouds</span>
-                                    </p>
-                                    <p class="card-text mb-1">Humidity: 75%</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 col-lg-3 col-md-6 mb-4">
-                            <div class="card h-100 position-relative weather-card">
-                                <div class="position-absolute weather-card-delete-form">
-                                    <button class="btn-close" aria-label="Delete"></button>
-                                </div>
-                                <img class="card-img-top img-fluid"
-                                     src="https://openweathermap.org/img/wn/01n@4x.png"
-                                     alt="Weather icon">
-                                <div class="card-body d-flex flex-column">
-                                    <h1 class="card-text">-1°C</h1>
-                                    <h3 class="card-title">Seoul, KR</h3>
-                                    <p class="card-text mb-1">Feels like <span>-5</span>°C.
-                                        <span>Clear sky</span>
-                                    </p>
-                                    <p class="card-text mb-1">Humidity: 55%</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 col-lg-3 col-md-6 mb-4">
-                            <div class="card h-100 position-relative weather-card">
-                                <div class="position-absolute weather-card-delete-form">
-                                    <button class="btn-close" aria-label="Delete"></button>
-                                </div>
-                                <img class="card-img-top img-fluid"
-                                     src="https://openweathermap.org/img/wn/13n@4x.png"
-                                     alt="Weather icon">
-                                <div class="card-body d-flex flex-column">
-                                    <h1 class="card-text">-4°C</h1>
-                                    <h3 class="card-title">Severodvinsk, RU</h3>
-                                    <p class="card-text mb-1">Feels like <span>-8</span>°C.
-                                        <span>Light snow</span>
-                                    </p>
-                                    <p class="card-text mb-1">Humidity: 81%</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 col-lg-3 col-md-6 mb-4">
-                            <div class="card h-100 position-relative weather-card">
-                                <div class="position-absolute weather-card-delete-form">
-                                    <button class="btn-close" aria-label="Delete"></button>
-                                </div>
-                                <img class="card-img-top img-fluid"
-                                     src="https://openweathermap.org/img/wn/04n@4x.png"
-                                     alt="Weather icon">
-                                <div class="card-body d-flex flex-column">
-                                    <h1 class="card-text">21°C</h1>
-                                    <h3 class="card-title">Sydney, AU</h3>
-                                    <p class="card-text mb-1">Feels like <span>22</span>°C.
-                                        <span>Overcast clouds</span>
-                                    </p>
-                                    <p class="card-text mb-1">Humidity: 85%</p>
-                                </div>
-                            </div>
-                        </div>
+
                     </div>
+                </div>
+
+                <div th:if="${weatherMap.isEmpty()}" class="col-12">
+                    <p class="text-muted">You haven't saved any locations yet. Use the search bar above to find and add new locations!</p>
                 </div>
             </div>
         </section>

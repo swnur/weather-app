@@ -4,6 +4,8 @@ import com.swnur.dao.SessionDAO;
 import com.swnur.model.Session;
 import com.swnur.model.User;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,8 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class SessionService {
+
+    private static final Logger log = LoggerFactory.getLogger(SessionService.class);
 
     private final SessionDAO sessionDAO;
 
@@ -39,8 +43,13 @@ public class SessionService {
     }
 
     @Transactional
-    public boolean invalidateSession(UUID sessionID) {
-        return sessionDAO.deleteById(sessionID) > 0;
+    public void invalidateSessionByStringId(String sessionIdString) {
+        try {
+            UUID sessionId = UUID.fromString(sessionIdString);
+            sessionDAO.deleteById(sessionId);
+        } catch (IllegalArgumentException e) {
+            log.warn("Attempted to invalidate session with UUID: {}", sessionIdString);
+        }
     }
 
     @Transactional
