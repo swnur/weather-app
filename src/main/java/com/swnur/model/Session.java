@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -13,7 +12,6 @@ import java.util.UUID;
 @Entity
 @Table(name = "session")
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Session {
@@ -23,7 +21,7 @@ public class Session {
     @Column(updatable = false, nullable = false)
     private UUID id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @NotNull(message = "Session must be associated with user")
     private User user;
@@ -35,5 +33,18 @@ public class Session {
     public Session(User user, LocalDateTime expiresAt) {
         this.user = user;
         this.expiresAt = expiresAt;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Session session = (Session) o;
+        return id != null && id.equals(session.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

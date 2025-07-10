@@ -20,7 +20,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"locations"})
+@ToString(exclude = {"locations", "password"})
 public class User {
 
     @Id
@@ -42,4 +42,26 @@ public class User {
     @Builder.Default
     private List<Location> locations = new ArrayList<>();
 
+    public void addLocation(Location location) {
+        this.locations.add(location);
+        location.setUser(this);
+    }
+
+    public void removeLocation(Location location) {
+        this.locations.remove(location);
+        location.setUser(null);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return id != null && id.equals(user.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

@@ -38,7 +38,7 @@ public class Location {
     @Column(nullable = false)
     private BigDecimal longitude;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     @NotNull(message = "Location must be associated with the user")
     private User user;
@@ -48,5 +48,18 @@ public class Location {
         this.latitude = latitude;
         this.longitude = longitude;
         this.user = user;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Location location = (Location) o;
+        return id != null && id.equals(location.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }
