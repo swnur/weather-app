@@ -6,9 +6,12 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
@@ -17,64 +20,84 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AuthInterceptor implements HandlerInterceptor {
 
+    private static final Logger logger = LoggerFactory.getLogger(AuthInterceptor.class);
+
     private final SessionService sessionService;
 
     public static final String SESSION_COOKIE_NAME = "APP_SESSION_ID";
     public static final String AUTHENTICATED_USER_ATTRIBUTE = "authenticatedUser";
-    public static final int SESSION_EXPIRATION_SECONDS = 600;
-    public static final int SESSION_EXPIRATION_MINUTES = 10;
+
+    private static final String[] EXCLUDED_PATHS = {
+            "/sign-in", "/sign-up", "/static", "/error/general-error"
+    };
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String requestURI = request.getRequestURI();
-        String contextPath = request.getContextPath();
-
-        String path = requestURI.substring(contextPath.length());
-        if (!path.startsWith("/")) {
-            path = "/" + path;
-        }
-
-
-        if (path.startsWith("/sign-in") ||
-                path.startsWith("/sign-up") ||
-                path.equals("/error/general-error")) {
+        if (isPathExcluded(request.getRequestURI(), request.getContextPath())) {
             return true;
         }
 
-        Optional<String> sessionIdString = Arrays.stream(
-                Optional.ofNullable(request.getCookies()).orElse(new Cookie[0]))
+        Optional<UUID> sessionIdOpt = extractSessionIdFromCookie(request.getCookies());
+
+        if (sessionIdOpt.isEmpty()) {
+            logger.warn("Session cookies not found or invalid. Redirecting to sign-in page.");
+            sendRedirect(response, request.getContextPath(), "/sign-in?auth_required=true");
+            return false;
+        }
+
+        UUID sessionId = sessionIdOpt.get();
+        Optional<User> authenticatedUserOpt = sessionService.validateSession(sessionId);
+
+        if (authenticatedUserOpt.isEmpty()) {
+            logger.warn("Session ID {} is expired or invalid. Expiring cookies and redirecting.", sessionId);
+            expireSessionCookie(response);
+            sendRedirect(response, request.getContextPath(), "/sign-in?session_expired=true");
+            return false;
+        }
+
+        User authenticatedUser = authenticatedUserOpt.get();
+        logger.debug("Session valid for user: {}", authenticatedUser.getLogin());
+        request.setAttribute(AUTHENTICATED_USER_ATTRIBUTE, authenticatedUser);
+
+        return true;
+    }
+
+    private boolean isPathExcluded(String requestURI, String contextPath) {
+        String path = requestURI.substring(contextPath.length());
+        return Arrays.stream(EXCLUDED_PATHS).anyMatch(path::startsWith);
+    }
+
+    private Optional<UUID> extractSessionIdFromCookie(Cookie[] cookies) {
+        if (cookies == null || cookies.length == 0) {
+            return Optional.empty();
+        }
+
+        return Arrays.stream(cookies)
                 .filter(cookie -> SESSION_COOKIE_NAME.equals(cookie.getName()))
                 .map(Cookie::getValue)
-                .findFirst();
+                .findFirst()
+                .flatMap(this::parseUuidFromString);
+    }
 
-        if (sessionIdString.isEmpty()) {
-            response.sendRedirect(request.getContextPath() + "/sign-in?auth_required=true");
-            return false;
-        }
-
-        UUID sessionId;
-
+    private Optional<UUID> parseUuidFromString(String uuidString) {
         try {
-            sessionId = UUID.fromString(sessionIdString.get());
+            return Optional.of(UUID.fromString(uuidString));
         } catch (IllegalArgumentException e) {
-            System.err.println("Invalid session ID format in cookie: " + sessionIdString.get());
-            response.sendRedirect(request.getContextPath() + "/sign-in?invalidSession=true");
-            return false;
+            logger.error("Invalid UUID format in session cookie: '{}'", uuidString, e);
+            return Optional.empty();
         }
+    }
 
-        Optional<User> authenticatedUser = sessionService.validateSession(sessionId);
+    private void expireSessionCookie(HttpServletResponse response) {
+        Cookie expiredCookie = new Cookie(SESSION_COOKIE_NAME, "");
+        expiredCookie.setMaxAge(0);
+        expiredCookie.setPath("/");
+        expiredCookie.setHttpOnly(true);
 
-        if (authenticatedUser.isEmpty()) {
-            Cookie expiredCookie = new Cookie(SESSION_COOKIE_NAME, "");
-            expiredCookie.setMaxAge(0);
-            expiredCookie.setPath("/");
-            response.addCookie(expiredCookie);
+        response.addCookie(expiredCookie);
+    }
 
-            response.sendRedirect(request.getContextPath() + "/sign-in?session_expired=true");
-            return false;
-        }
-
-        request.setAttribute(AUTHENTICATED_USER_ATTRIBUTE, authenticatedUser.get());
-        return true;
+    private void sendRedirect(HttpServletResponse response, String contextPath, String targetUrl) throws IOException {
+        response.sendRedirect(contextPath + targetUrl);
     }
 }
