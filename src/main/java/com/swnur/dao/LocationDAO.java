@@ -34,7 +34,7 @@ public class LocationDAO {
     @Transactional(readOnly = true)
     public Optional<Location> findByIdAndUser(Integer id, User user) {
         try {
-            return Optional.ofNullable(entityManager.createQuery("SELECT l FROM Location l WHERE l.id = :id AND l.user = :user", Location.class)
+            return Optional.of(entityManager.createQuery("SELECT l FROM Location l WHERE l.id = :id AND l.user = :user", Location.class)
                     .setParameter("id", id)
                     .setParameter("user", user)
                     .getSingleResult());
@@ -43,6 +43,7 @@ public class LocationDAO {
         }
     }
 
+    @Transactional(readOnly = true)
     public Optional<Location> findByUserAndDetails(User user, Location location) {
         try {
             String sqlQuery = "SELECT l FROM Location l " +

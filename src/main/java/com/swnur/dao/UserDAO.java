@@ -17,14 +17,25 @@ public class UserDAO {
 
     @Transactional
     public User save(User user) {
-        entityManager.persist(user);
+        entityManager.merge(user);
         return user;
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<User> findById(Integer id) {
+        try {
+            return Optional.of(entityManager.createQuery("SELECT u FROM User u WHERE u.id = :id", User.class)
+                    .setParameter("id", id)
+                    .getSingleResult());
+        } catch (NoResultException exception) {
+            return Optional.empty();
+        }
     }
 
     @Transactional(readOnly = true)
     public Optional<User> findByLogin(String login) {
         try {
-            return Optional.ofNullable(entityManager.createQuery("SELECT u FROM User u WHERE u.login = :login", User.class)
+            return Optional.of(entityManager.createQuery("SELECT u FROM User u WHERE u.login = :login", User.class)
                     .setParameter("login", login)
                     .getSingleResult());
         } catch (NoResultException exception) {
