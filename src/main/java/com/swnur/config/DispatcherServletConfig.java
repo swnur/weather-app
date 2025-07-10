@@ -10,7 +10,7 @@ public class DispatcherServletConfig extends AbstractAnnotationConfigDispatcherS
 
     @Override
     protected Class<?> @Nullable [] getRootConfigClasses() {
-        return null;
+        return new Class[] {RootConfig.class, HibernateConfig.class};
     }
 
     @Override

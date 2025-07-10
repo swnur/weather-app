@@ -4,27 +4,21 @@ import com.swnur.intercepter.AuthInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.*;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.*;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.spring6.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring6.view.ThymeleafViewResolver;
 
-
 @Configuration
-@ComponentScan("com.swnur")
-@PropertySource("classpath:application.properties")
 @EnableWebMvc
-@EnableScheduling
+@ComponentScan("com.swnur.controller")
 public class WebApplicationConfig implements WebMvcConfigurer {
 
     private final ApplicationContext applicationContext;
     private final AuthInterceptor authInterceptor;
 
     @Autowired
-    public WebApplicationConfig(ApplicationContext applicationContext, @Lazy AuthInterceptor authInterceptor) {
+    public WebApplicationConfig(ApplicationContext applicationContext, AuthInterceptor authInterceptor) {
         this.applicationContext = applicationContext;
         this.authInterceptor = authInterceptor;
     }
@@ -60,18 +54,9 @@ public class WebApplicationConfig implements WebMvcConfigurer {
                 .addResourceLocations("/WEB-INF/static/");
     }
 
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(authInterceptor);
     }
 
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
 }
