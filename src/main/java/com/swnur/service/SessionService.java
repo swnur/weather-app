@@ -26,7 +26,6 @@ public class SessionService {
         sessionDAO.deleteByExpiredForUser(user);
 
         LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(sessionExpirationMinutes);
-
         Session newSession = new Session(user, expiresAt);
 
         return sessionDAO.save(newSession);
@@ -34,20 +33,9 @@ public class SessionService {
 
     @Transactional
     public Optional<User> validateSession(UUID sessionID) {
-        Optional<Session> sessionOptional = sessionDAO.findById(sessionID);
-
-        if (sessionOptional.isEmpty()) {
-            return Optional.empty();
-        }
-
-        Session session = sessionOptional.get();
-
-        if (session.getExpiresAt().isBefore(LocalDateTime.now())) {
-            sessionDAO.deleteById(sessionID);
-            return Optional.empty();
-        }
-
-        return Optional.of(session.getUser());
+        return sessionDAO.findById(sessionID)
+                .filter(session -> session.getExpiresAt().isAfter(LocalDateTime.now()))
+                .map(Session::getUser);
     }
 
     @Transactional

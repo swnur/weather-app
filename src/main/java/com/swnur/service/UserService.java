@@ -9,8 +9,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -20,9 +18,7 @@ public class UserService {
 
     @Transactional
     public User registerUser(String login, String password) {
-        Optional<User> existingUser = userDAO.findByLogin(login);
-
-        if (existingUser.isPresent())
+        if (userDAO.findByLogin(login).isPresent())
             throw new LoginAlreadyExistsException("Login: " + login + " is already taken.");
 
         User newUser = new User();
@@ -34,17 +30,9 @@ public class UserService {
 
     @Transactional
     public User authenticateUser(String login, String password) {
-        Optional<User> existingUser = userDAO.findByLogin(login);
-
-        if (existingUser.isEmpty())
-            throw new InvalidCredentialsException("Authentication failed: User not found");
-
-        User user = existingUser.get();
-
-        if (!passwordEncoder.matches(password, user.getPassword()))
-            throw new InvalidCredentialsException("Authentication failed: Password is incorrect");
-
-        return user;
+        return userDAO.findByLogin(login)
+                .filter(user -> passwordEncoder.matches(password, user.getPassword()))
+                .orElseThrow(() -> new InvalidCredentialsException("Authentication failed: Invalid login or password"));
     }
 
 }
