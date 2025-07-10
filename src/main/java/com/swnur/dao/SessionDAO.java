@@ -3,7 +3,9 @@ package com.swnur.dao;
 import com.swnur.model.Session;
 import com.swnur.model.User;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,26 +21,31 @@ public class SessionDAO {
 
     @Transactional
     public Session save(Session session) {
-        entityManager.persist(session);
-        return session;
+        return entityManager.merge(session);
     }
 
     @Transactional(readOnly = true)
     public Optional<Session> findById(UUID id) {
-        Session session = entityManager.find(Session.class, id);
-        return Optional.ofNullable(session);
+        TypedQuery<Session> query = entityManager.createNamedQuery("Session.findByIdAndFetchUser", Session.class)
+                .setParameter("id", id);
+
+        try {
+            return Optional.of(query.getSingleResult());
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
     }
 
     @Transactional
     public void deleteByExpired() {
-        entityManager.createQuery("DELETE FROM Session s WHERE s.expiresAt < :now")
+        entityManager.createNamedQuery("Session.deleteByExpired")
                 .setParameter("now", LocalDateTime.now())
                 .executeUpdate();
     }
 
     @Transactional
     public void deleteByExpiredForUser(User user) {
-        entityManager.createQuery("DELETE FROM Session s WHERE s.user = :user AND s.expiresAt <:now")
+        entityManager.createNamedQuery("Session.deleteByExpiredForUser")
                 .setParameter("user", user)
                 .setParameter("now", LocalDateTime.now())
                 .executeUpdate();
@@ -46,7 +53,7 @@ public class SessionDAO {
 
     @Transactional
     public int deleteById(UUID id) {
-        return entityManager.createQuery("DELETE FROM Session s WHERE s.id = :id")
+        return entityManager.createNamedQuery("Session.deleteById")
                 .setParameter("id", id)
                 .executeUpdate();
     }

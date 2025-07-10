@@ -15,6 +15,14 @@ import java.util.List;
 
 @Entity
 @Table(name = "users")
+@NamedQuery(
+        name = "User.findById",
+        query = "SELECT u FROM User u LEFT JOIN FETCH u.locations WHERE u.id = :id"
+)
+@NamedQuery(
+        name = "User.findByLogin",
+        query = "SELECT u FROM User u LEFT JOIN FETCH u.locations WHERE u.login = :login"
+)
 @Builder
 @Getter
 @Setter

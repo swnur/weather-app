@@ -11,6 +11,22 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "session")
+@NamedQuery(
+        name = "Session.findByIdAndFetchUser",
+        query = "SELECT s FROM Session s JOIN FETCH s.user WHERE s.id = :id"
+)
+@NamedQuery(
+        name = "Session.deleteByExpired",
+        query = "DELETE FROM Session s WHERE s.expiresAt <: now"
+)
+@NamedQuery(
+        name = "Session.deleteByExpiredForUser",
+        query = "DELETE FROM Session s WHERE s.user = :user AND s.expiresAt < :now"
+)
+@NamedQuery(
+        name = "Session.deleteById",
+        query = "DELETE FROM Session s WHERE s.id = :id"
+)
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor

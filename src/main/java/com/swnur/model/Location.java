@@ -14,6 +14,22 @@ import java.math.BigDecimal;
 @Table(name = "location", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"user_id", "name", "latitude", "longitude"})
 })
+@NamedQuery(
+        name = "Location.findByUser",
+        query = "SELECT l FROM Location l WHERE l.user = :user ORDER BY l.name ASC"
+)
+@NamedQuery(
+        name = "Location.findByIdAndUser",
+        query = "SELECT l FROM Location l WHERE l.id = :id AND l.user = :user"
+)
+@NamedQuery(
+        name = "Location.findByUserAndDetails",
+        query = "SELECT l FROM Location l WHERE l.user = :user AND l.name = :name AND l.latitude = :latitude AND l.longitude = :longitude"
+)
+@NamedQuery(
+        name = "Location.deleteByIdAndUser",
+        query = "DELETE FROM Location l WHERE l.id = :id AND l.user = :user"
+)
 @Getter
 @Setter
 @NoArgsConstructor

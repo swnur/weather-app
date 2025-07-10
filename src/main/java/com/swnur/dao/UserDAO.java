@@ -4,6 +4,7 @@ import com.swnur.model.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,28 +18,29 @@ public class UserDAO {
 
     @Transactional
     public User save(User user) {
-        entityManager.merge(user);
-        return user;
+        return entityManager.merge(user);
     }
 
     @Transactional(readOnly = true)
     public Optional<User> findById(Integer id) {
-        try {
-            return Optional.of(entityManager.createQuery("SELECT u FROM User u WHERE u.id = :id", User.class)
-                    .setParameter("id", id)
-                    .getSingleResult());
-        } catch (NoResultException exception) {
-            return Optional.empty();
-        }
+       TypedQuery<User> query = entityManager.createNamedQuery("User.findById", User.class)
+               .setParameter("id", id);
+
+       return getSingleResultOptional(query);
     }
 
     @Transactional(readOnly = true)
     public Optional<User> findByLogin(String login) {
+        TypedQuery<User> query = entityManager.createNamedQuery("User.findByLogin", User.class)
+                .setParameter("login", login);
+
+        return getSingleResultOptional(query);
+    }
+
+    private <T> Optional<T> getSingleResultOptional(TypedQuery<T> query) {
         try {
-            return Optional.of(entityManager.createQuery("SELECT u FROM User u WHERE u.login = :login", User.class)
-                    .setParameter("login", login)
-                    .getSingleResult());
-        } catch (NoResultException exception) {
+            return Optional.of(query.getSingleResult());
+        } catch (NoResultException e) {
             return Optional.empty();
         }
     }

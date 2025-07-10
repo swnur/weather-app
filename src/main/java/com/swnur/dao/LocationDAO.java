@@ -25,7 +25,7 @@ public class LocationDAO {
 
     @Transactional(readOnly = true)
     public List<Location> findByUser(User user) {
-        return entityManager.createQuery("SELECT l FROM Location l WHERE l.user = :user ORDER BY l.name ASC",
+        return entityManager.createNamedQuery("Location.findByUser",
                         Location.class)
                 .setParameter("user", user)
                 .getResultList();
@@ -33,32 +33,22 @@ public class LocationDAO {
 
     @Transactional(readOnly = true)
     public Optional<Location> findByIdAndUser(Integer id, User user) {
-        try {
-            return Optional.of(entityManager.createQuery("SELECT l FROM Location l WHERE l.id = :id AND l.user = :user", Location.class)
-                    .setParameter("id", id)
-                    .setParameter("user", user)
-                    .getSingleResult());
-        } catch (NoResultException e) {
-            return Optional.empty();
-        }
+        TypedQuery<Location> query = entityManager.createNamedQuery("Location.findByIdAndUser", Location.class)
+                .setParameter("id", id)
+                .setParameter("user", user);
+
+        return getSingleResultOptional(query);
     }
 
     @Transactional(readOnly = true)
     public Optional<Location> findByUserAndDetails(User user, Location location) {
-        try {
-            String sqlQuery = "SELECT l FROM Location l " +
-                    "WHERE l.user = :user AND l.name = :name AND l.latitude = :latitude and l.longitude = :longitude";
+        TypedQuery<Location> query = entityManager.createNamedQuery("Location.findByUserAndDetails", Location.class)
+                .setParameter("user", user)
+                .setParameter("name", location.getName())
+                .setParameter("latitude", location.getLatitude())
+                .setParameter("longitude", location.getLongitude());
 
-            TypedQuery<Location> query = entityManager.createQuery(sqlQuery, Location.class)
-                    .setParameter("user", user)
-                    .setParameter("name", location.getName())
-                    .setParameter("latitude", location.getLatitude())
-                    .setParameter("longitude", location.getLongitude());
-
-            return Optional.of(query.getSingleResult());
-        } catch (NoResultException e) {
-            return Optional.empty();
-        }
+        return getSingleResultOptional(query);
     }
 
     @Transactional
@@ -67,5 +57,13 @@ public class LocationDAO {
                 .setParameter("id", id)
                 .setParameter("user", user)
                 .executeUpdate();
+    }
+
+    private <T> Optional<T> getSingleResultOptional(TypedQuery<T> query) {
+        try {
+            return Optional.of(query.getSingleResult());
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
     }
 }
