@@ -4,6 +4,7 @@ import com.swnur.intercepter.AuthInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.*;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.*;
@@ -16,6 +17,7 @@ import org.thymeleaf.spring6.view.ThymeleafViewResolver;
 @ComponentScan("com.swnur")
 @PropertySource("classpath:application.properties")
 @EnableWebMvc
+@EnableScheduling
 public class WebApplicationConfig implements WebMvcConfigurer {
 
     private final ApplicationContext applicationContext;
