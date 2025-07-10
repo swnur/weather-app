@@ -1,10 +1,10 @@
 package com.swnur.service;
 
 import com.swnur.dao.SessionDAO;
-import com.swnur.intercepter.AuthInterceptor;
 import com.swnur.model.Session;
 import com.swnur.model.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,11 +18,14 @@ public class SessionService {
 
     private final SessionDAO sessionDAO;
 
+    @Value("${session.expiration.minutes}")
+    private int sessionExpirationMinutes;
+
     @Transactional
     public Session createSession(User user) {
         sessionDAO.deleteByExpiredForUser(user);
 
-        LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(AuthInterceptor.SESSION_EXPIRATION_MINUTES);
+        LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(sessionExpirationMinutes);
 
         Session newSession = new Session(user, expiresAt);
 
