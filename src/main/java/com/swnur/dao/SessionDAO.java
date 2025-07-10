@@ -1,11 +1,13 @@
 package com.swnur.dao;
 
 import com.swnur.model.Session;
+import com.swnur.model.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,8 +30,18 @@ public class SessionDAO {
     }
 
     @Transactional
-    public void delete(Session session) {
-        entityManager.remove(session);
+    public void deleteByExpired() {
+        entityManager.createQuery("DELETE FROM Session s WHERE s.expiresAt < :now")
+                .setParameter("now", LocalDateTime.now())
+                .executeUpdate();
+    }
+
+    @Transactional
+    public void deleteByExpiredForUser(User user) {
+        entityManager.createQuery("DELETE FROM Session s WHERE s.user = :user AND s.expiresAt <:now")
+                .setParameter("user", user)
+                .setParameter("now", LocalDateTime.now())
+                .executeUpdate();
     }
 
     @Transactional
